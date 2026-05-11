@@ -580,6 +580,47 @@ if uploaded:
         if uncertain:
             st.info(f"🟡 AI가 {len(uncertain)}개 셀에서 확신 낮음 — 노란색 표시. 원본과 대조하세요.")
 
+        # ── 다운로드 (상단) ───────────────────────────────────────────
+        # 최초 렌더: 원본 추출 데이터로 즉시 빌드
+        if st.session_state.get("dl_xlsx") is None:
+            _init_tbl = [
+                ({"title": t.get("title", ""), "notes": t.get("notes", [])}, to_dataframe(t))
+                for t in data.get("tables", [])
+            ]
+            _init_notes = data.get("general_notes", [])
+            st.session_state.dl_xlsx = build_xlsx("단가표", _init_tbl, _init_notes, uncertain)
+            st.session_state.dl_csv  = build_csv("단가표", _init_tbl, _init_notes, uncertain).encode("utf-8-sig")
+            st.session_state.dl_md   = build_md("단가표", _init_tbl, _init_notes, uncertain).encode("utf-8")
+            st.session_state["_dl_doc_title"] = "단가표"
+
+        _dl_doc  = st.session_state.get("_dl_doc_title", "단가표")
+        _dl_safe = ("".join(c for c in _dl_doc if c.isalnum() or c in "_-가-힣 ").strip() or "단가표")
+        _dl_ts   = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        st.markdown("### 📥 다운로드")
+        st.caption(f"📁 `{_dl_safe}_{_dl_ts}`  ·  표 수정 시 자동 반영")
+        _d1, _d2, _d3, _d4 = st.columns(4)
+        with _d1:
+            st.download_button("📊 Excel (.xlsx)", data=st.session_state.dl_xlsx,
+                               file_name=f"{_dl_safe}_{_dl_ts}.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                               use_container_width=True)
+        with _d2:
+            st.download_button("📄 CSV (.csv)", data=st.session_state.dl_csv,
+                               file_name=f"{_dl_safe}_{_dl_ts}.csv",
+                               mime="text/csv", use_container_width=True)
+        with _d3:
+            st.download_button("📝 Markdown (.md)", data=st.session_state.dl_md,
+                               file_name=f"{_dl_safe}_{_dl_ts}.md",
+                               mime="text/markdown", use_container_width=True)
+        with _d4:
+            if st.button("🔄 새 이미지", use_container_width=True):
+                for k in ["extracted", "cost", "filename", "image_bytes",
+                          "template_id", "prep_info", "start_time", "end_time", "elapsed",
+                          "dl_xlsx", "dl_csv", "dl_md", "dl_built_key", "_dl_doc_title"]:
+                    st.session_state.pop(k, None)
+                st.rerun()
+        st.markdown("---")
+
         # ── 레이아웃: 원본 | 표 ──────────────────────────────────────
         col_img, col_tbl = st.columns([1, 1.4])
 
@@ -623,20 +664,7 @@ if uploaded:
                     notes = [ln.strip() for ln in notes_text.split("\n") if ln.strip()]
                     tables_with_dfs.append(({"title": new_title, "notes": notes}, edited_df))
 
-        # ── 다운로드 섹션 ─────────────────────────────────────────────
-        st.markdown("---")
-        st.markdown("### 📥 다운로드")
-
-        safe_name = (
-            "".join(c for c in doc_title if c.isalnum() or c in "_-가-힣 ").strip()
-            or "단가표"
-        )
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        safe_name = f"{safe_name}_{timestamp}"
-        st.caption(f"📁 `{safe_name}.xlsx` / `.csv` / `.md`")
-
-        # ── 다운로드 파일 빌드 (버튼 클릭 직전에 한 번만) ─────────────
-        # build_key: 현재 편집 상태가 달라지면 재빌드
+        # ── 다운로드 파일 재빌드 (편집 내용 반영 → 다음 렌더에 상단 버튼에 적용) ──
         build_key = (
             doc_title,
             tuple(gn_text.split("\n")),
@@ -646,46 +674,12 @@ if uploaded:
                 for i in range(len(data.get("tables", [])))
             ),
         )
-
-        if st.session_state.get("dl_built_key") != build_key or st.session_state.get("dl_xlsx") is None:
+        if st.session_state.get("dl_built_key") != build_key:
             st.session_state.dl_xlsx      = build_xlsx(doc_title, tables_with_dfs, general_notes, uncertain)
             st.session_state.dl_csv       = build_csv(doc_title, tables_with_dfs, general_notes, uncertain).encode("utf-8-sig")
             st.session_state.dl_md        = build_md(doc_title, tables_with_dfs, general_notes, uncertain).encode("utf-8")
             st.session_state.dl_built_key = build_key
-
-        d1, d2, d3, d4 = st.columns(4)
-        with d1:
-            st.download_button(
-                "📊 Excel (.xlsx)",
-                data      = st.session_state.dl_xlsx,
-                file_name = f"{safe_name}.xlsx",
-                mime      = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
-            )
-        with d2:
-            st.download_button(
-                "📄 CSV (.csv)",
-                data      = st.session_state.dl_csv,
-                file_name = f"{safe_name}.csv",
-                mime      = "text/csv",
-                use_container_width=True,
-            )
-        with d3:
-            st.download_button(
-                "📝 Markdown (.md)",
-                data      = st.session_state.dl_md,
-                file_name = f"{safe_name}.md",
-                mime      = "text/markdown",
-                use_container_width=True,
-            )
-        with d4:
-            if st.button("🔄 새 이미지", use_container_width=True):
-                for k in ["extracted", "cost", "filename", "image_bytes",
-                          "template_id", "prep_info",
-                          "start_time", "end_time", "elapsed",
-                          "dl_xlsx", "dl_csv", "dl_md", "dl_built_key"]:
-                    st.session_state.pop(k, None)
-                st.rerun()
+            st.session_state["_dl_doc_title"] = doc_title
 
 else:
     st.info("👆 위에서 단가표 이미지를 업로드해주세요.")
