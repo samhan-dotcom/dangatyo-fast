@@ -436,20 +436,49 @@ st.title(APP_TITLE)
 st.caption("이미지 업로드 → 1회 AI 추출 → 즉시 다운로드  |  빠르고 저렴 (검증·감사 없음)")
 
 with st.sidebar:
-    st.markdown("### ⚡ 빠른 버전 특징")
+    st.markdown("### 📖 사용 방법")
     st.markdown("""
-    - **1회 Claude 호출** (검증/감사 없음)
-    - **약 10~20초**, 50~120원/장
-    - AI가 의심하는 셀은 🟡 노란색 표시
-    - 빠른 확인 용도에 적합
+**① 이미지 업로드**
+단가표 사진 또는 스크린샷을 올려주세요.
+*(PDF → 스크린샷이 사진보다 정확합니다)*
+
+**② 양식 선택**
+통신사 양식을 선택하거나 자동감지를 사용하세요.
+
+**③ ⚡ 추출 시작 클릭**
+약 10~20초 소요됩니다.
+
+**④ 결과 확인**
+🟡 노란 셀 = AI가 불확실한 항목
+→ 반드시 원본 이미지와 대조하세요.
+
+**⑤ 수정 후 다운로드**
+셀 더블클릭으로 직접 수정 가능
+→ Excel / CSV / Markdown 저장
     """)
     st.divider()
-    st.markdown("### 등록된 양식")
+
+    st.markdown("### ⚡ 이 버전 특징")
+    st.markdown("""
+- **1회 Claude 호출** (검증/감사 없음)
+- **약 10~20초**, 50~120원/장
+- AI가 의심하는 셀은 🟡 노란색 표시
+- 빠른 확인 용도에 적합
+    """)
+    st.divider()
+
+    st.markdown("### 📋 등록된 양식")
     for tid, t in TEMPLATES.items():
         st.caption(t["display_name"])
     st.divider()
-    st.markdown("### 정밀 버전이 필요하다면?")
-    st.caption("→ `app.py` 실행 (교차검증 + 재검증 + 감사)")
+
+    st.markdown("### 💳 API 크레딧")
+    st.link_button(
+        "🔗 잔여 크레딧 확인",
+        "https://console.anthropic.com/settings/billing",
+        use_container_width=True,
+    )
+    st.caption("Anthropic API는 잔액 직접 조회를 지원하지 않습니다. 위 버튼으로 Console을 바로 열 수 있습니다.")
 
 uploaded = st.file_uploader(
     "단가표 이미지 업로드",
