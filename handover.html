@@ -237,7 +237,7 @@
   </div>
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('overview', this)">📋 인수인계 개요</button>
-    <button class="tab-btn" onclick="switchTab('howto', this)">🔧 수정 가이드</button>
+    <button class="tab-btn" onclick="switchTab('howto', this)">🔧 수정·보안 가이드</button>
   </div>
 </header>
 
@@ -458,6 +458,8 @@ git push</code></pre>
 <nav class="toc">
   <div class="toc-title">목차</div>
   <ol>
+    <li><a href="#github-basics">GitHub 입문</a></li>
+    <li><a href="#security">보안 &amp; 안전성</a></li>
     <li><a href="#apikey">API 키 변경</a></li>
     <li><a href="#model">AI 모델 변경</a></li>
     <li><a href="#template-add">템플릿 추가</a></li>
@@ -468,6 +470,189 @@ git push</code></pre>
 </nav>
 
 <main>
+
+<!-- GitHub 입문 -->
+<section id="github-basics">
+  <h2><span class="ico">🐙</span>GitHub가 뭔가요? (비개발자 입문)</h2>
+
+  <h3>한 줄 요약</h3>
+  <p><strong>GitHub = 코드 파일 전용 구글 드라이브 + 변경 이력 자동 저장</strong><br>
+  파일을 저장하면서 "언제, 누가, 무엇을 바꿨는지"를 모두 기록해두는 서비스입니다.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">📁 구글 드라이브와 비슷한 점</div>
+      <div class="card-body">파일을 온라인에 보관하고, 어디서든 다운로드할 수 있습니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📜 다른 점 — 변경 이력</div>
+      <div class="card-body">"3월 5일에 A가 이 줄을 이렇게 바꿨다"는 식으로 모든 수정 내역이 남습니다. 실수해도 과거로 되돌릴 수 있습니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ 용어: Repository(레포)</div>
+      <div class="card-body">프로젝트 폴더 하나를 레포라고 부릅니다. 이 앱의 레포:<br><code>github.com/samhan-dotcom/dangatyo-fast</code></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 왜 이 앱에 필요한가</div>
+      <div class="card-body">Streamlit Cloud가 GitHub을 바라보고 있어서, 코드를 GitHub에 올리면 앱이 자동으로 새 버전으로 바뀝니다.</div>
+    </div>
+  </div>
+
+  <h3>핵심 용어 3개만 기억하세요</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>용어</th><th>일상적 비유</th><th>하는 일</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Commit</strong><br>(커밋)</td><td>사진 찍기</td><td>변경 내용에 제목을 붙여서 저장. "알뜰폰 양식 추가"처럼 메모를 남깁니다.</td></tr>
+        <tr><td><strong>Push</strong><br>(푸시)</td><td>카톡 전송</td><td>내 컴퓨터의 변경사항을 GitHub 서버로 올리기. 이때 Streamlit Cloud도 자동 감지해서 앱을 업데이트합니다.</td></tr>
+        <tr><td><strong>Clone</strong><br>(클론)</td><td>공유 링크에서 다운로드</td><td>GitHub에 있는 코드를 내 컴퓨터로 통째로 내려받기.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>GitHub Desktop — 명령어 없이 버튼으로 사용하기</h3>
+  <p>개발자들은 터미널(검은 화면)에서 명령어를 입력하지만, <strong>GitHub Desktop</strong>을 사용하면 클릭만으로 똑같이 할 수 있습니다.</p>
+
+  <ol class="step-list">
+    <li>
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>GitHub Desktop 설치</strong>
+        <a href="https://desktop.github.com/" target="_blank">desktop.github.com</a>에서 다운로드 → 설치
+      </div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>GitHub 계정으로 로그인</strong>
+        기존 samhan-dotcom 계정 또는 새 계정으로 로그인
+      </div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>레포를 내 컴퓨터로 받기 (최초 1회)</strong>
+        File → Clone Repository → URL 탭 →
+        <code>https://github.com/samhan-dotcom/dangatyo-fast</code> 입력 → Clone
+      </div>
+    </li>
+    <li>
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>파일 수정</strong>
+        클론된 폴더에서 <code>app_fast.py</code> 또는 <code>templates.py</code>를 메모장·VS Code로 열어 수정 후 저장
+      </div>
+    </li>
+    <li>
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <strong>GitHub Desktop에서 변경사항 확인</strong>
+        왼쪽 패널에 수정된 파일 목록이 표시됩니다. 빨간 줄 = 삭제, 초록 줄 = 추가.
+      </div>
+    </li>
+    <li>
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <strong>커밋 — 변경 내용에 제목 붙이기</strong>
+        왼쪽 아래 Summary 칸에 짧은 메모 입력 (예: "SKT 양식 추가") → <strong>Commit to main</strong> 클릭
+      </div>
+    </li>
+    <li>
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <strong>Push — GitHub 서버로 올리기</strong>
+        상단의 <strong>Push origin</strong> 버튼 클릭 → 1~2분 후 앱 자동 업데이트
+      </div>
+    </li>
+  </ol>
+
+  <div class="callout callout-tip">
+    <span class="icon">💡</span>
+    <span>Claude(AI)한테 "이 파일의 이 부분을 이렇게 바꿔줘"라고 요청하면 코드를 대신 수정해줍니다. 그러면 본인은 GitHub Desktop으로 커밋·Push만 하면 됩니다.</span>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="icon">🔐</span>
+    <span><strong>Push 권한 필요</strong> — 다른 사람이 이 레포에 Push하려면 GitHub 계정을 레포 Collaborator로 초대받아야 합니다. samhan-dotcom 계정 소유자가 <a href="https://github.com/samhan-dotcom/dangatyo-fast/settings/access" target="_blank">Settings → Collaborators</a>에서 초대할 수 있습니다.</span>
+  </div>
+</section>
+
+<!-- 보안 & 안전성 -->
+<section id="security">
+  <h2><span class="ico">🔒</span>보안 &amp; 안전성</h2>
+
+  <h3>API 키는 안전하게 보관되나요?</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">☁️ Streamlit Cloud (배포 앱)</div>
+      <div class="card-body">Secrets에 암호화 저장됩니다. Streamlit 관리자도 평문으로 볼 수 없고, 팀원이 앱을 사용해도 키가 노출되지 않습니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">💻 로컬 실행 시 (.env 파일)</div>
+      <div class="card-body"><code>.gitignore</code>에 등록되어 있어 GitHub에 절대 올라가지 않습니다. 본인 컴퓨터에만 저장됩니다.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-red">
+    <span class="icon">🚨</span>
+    <span><strong>절대 하면 안 되는 것</strong><br>
+    API 키를 <code>app_fast.py</code> 코드 안에 직접 붙여넣기, 카카오톡·이메일로 전송, GitHub에 커밋하기.<br>
+    키가 유출되면 타인이 내 비용으로 API를 사용할 수 있습니다.<br>
+    <strong>유출 시 즉시</strong>: <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a>에서 해당 키 폐기 → 새 키 발급</span>
+  </div>
+
+  <h3>업로드한 단가표 이미지는 어디로 가나요?</h3>
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:8px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="flow-step" style="min-width:120px">📱 내 브라우저</div>
+      <div class="flow-arrow">→</div>
+      <span style="font-size:.85rem">HTTPS 암호화 전송</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="flow-step" style="min-width:120px">☁️ Streamlit<br>Cloud 서버</div>
+      <div class="flow-arrow">→</div>
+      <span style="font-size:.85rem">메모리에서 처리 (디스크 저장 ❌)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="flow-step" style="min-width:120px">🤖 Anthropic<br>API 서버</div>
+      <div class="flow-arrow">→</div>
+      <span style="font-size:.85rem">Claude가 이미지 분석 후 결과 반환</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="flow-step" style="min-width:120px">📊 추출 결과</div>
+      <div class="flow-arrow">→</div>
+      <span style="font-size:.85rem">브라우저 세션에만 존재 → 탭 닫으면 삭제</span>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="icon">ℹ️</span>
+    <span><strong>Anthropic은 내 이미지를 학습에 쓰나요?</strong><br>
+    API를 통해 전송된 데이터는 Anthropic의 정책상 AI 모델 학습에 사용되지 않습니다. 단가표 이미지는 분석 후 반환되며 Anthropic 서버에 저장되지 않습니다.<br>
+    참고: <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a></span>
+  </div>
+
+  <h3>팀원 간 데이터가 섞이나요?</h3>
+  <p>각 사용자의 세션은 완전히 독립적입니다. A가 업로드한 이미지가 B에게 보이거나, A의 추출 결과가 B에게 전달되는 일은 없습니다. 탭을 닫으면 해당 세션의 모든 데이터가 삭제됩니다.</p>
+
+  <h3>앱 접근 권한</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>현재 설정</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>앱 URL 접근</td><td>누구나 가능</td><td>URL을 아는 사람은 모두 사용 가능. 비밀번호 없음.</td></tr>
+        <tr><td>API 키 노출</td><td>❌ 노출 안 됨</td><td>Streamlit Secrets에서만 읽힘</td></tr>
+        <tr><td>사용 비용 주체</td><td>API 키 소유자</td><td>누가 사용해도 키 소유자 계정에서 과금됨</td></tr>
+        <tr><td>사용량 확인</td><td><a href="https://console.anthropic.com/settings/usage" target="_blank">Console에서 확인</a></td><td>세션·날짜별 사용량 조회 가능</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="icon">⚠️</span>
+    <span><strong>앱 URL은 팀 내부에서만 공유하세요.</strong> URL이 외부에 유출되면 누구나 앱을 사용하게 되고, 그 비용이 API 키 소유자에게 청구됩니다. 필요하다면 Streamlit Cloud에서 접근 제한(Password 설정)을 걸 수 있습니다.</span>
+  </div>
+</section>
 
 <!-- API 키 변경 -->
 <section id="apikey">
