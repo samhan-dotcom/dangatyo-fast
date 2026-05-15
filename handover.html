@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ 단가표 빠른 추출기 — 인수인계 문서</title>
+<style>
+  :root {
+    --primary: #4F46E5;
+    --primary-light: #EEF2FF;
+    --accent: #F59E0B;
+    --accent-light: #FEF3C7;
+    --green: #10B981;
+    --green-light: #D1FAE5;
+    --red: #EF4444;
+    --red-light: #FEE2E2;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--gray-700);
+    background: var(--gray-50);
+  }
+
+  /* ── 헤더 ── */
+  header {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    color: white;
+    padding: 52px 40px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  header .emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+  header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  header p { margin-top: 8px; opacity: .85; font-size: 1rem; }
+  header .links { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+  header .links a {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.15); color: white;
+    text-decoration: none; padding: 6px 14px; border-radius: 20px;
+    font-size: .85rem; font-weight: 500; border: 1px solid rgba(255,255,255,.25);
+    transition: background .15s;
+  }
+  header .links a:hover { background: rgba(255,255,255,.25); }
+
+  /* ── 레이아웃 ── */
+  .layout {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    padding: 36px 24px 80px;
+    align-items: start;
+  }
+
+  /* ── 사이드바 TOC ── */
+  nav.toc {
+    position: sticky;
+    top: 24px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    font-size: .82rem;
+  }
+  nav.toc .toc-title {
+    font-weight: 700; font-size: .75rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--gray-400);
+    margin-bottom: 12px;
+  }
+  nav.toc ol { list-style: none; counter-reset: toc-cnt; }
+  nav.toc li { counter-increment: toc-cnt; }
+  nav.toc a {
+    display: flex; align-items: baseline; gap: 8px;
+    color: var(--gray-600); text-decoration: none;
+    padding: 5px 8px; border-radius: 6px;
+    transition: all .12s;
+  }
+  nav.toc a::before {
+    content: counter(toc-cnt);
+    font-size: .7rem; font-weight: 700;
+    color: var(--gray-400); min-width: 14px;
+  }
+  nav.toc a:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  nav.toc a:hover::before { color: var(--primary); }
+
+  /* ── 본문 ── */
+  main { min-width: 0; }
+
+  section {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  h2 {
+    font-size: 1.25rem; font-weight: 800;
+    color: var(--gray-900);
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray-100);
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .ico {
+    width: 34px; height: 34px;
+    background: var(--primary-light);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+
+  h3 { font-size: 1rem; font-weight: 700; color: var(--gray-900); margin: 22px 0 10px; }
+
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { color: var(--gray-900); font-weight: 700; }
+
+  /* ── 테이블 ── */
+  .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--gray-200); }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  thead { background: var(--gray-50); }
+  th { padding: 11px 16px; text-align: left; font-weight: 700; color: var(--gray-700); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+  td { padding: 11px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+
+  /* 배지 */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: .78rem; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+  }
+  .badge-green { background: var(--green-light); color: #065F46; }
+  .badge-red   { background: var(--red-light);   color: #991B1B; }
+  .badge-gray  { background: var(--gray-100);     color: var(--gray-600); }
+  .badge-amber { background: var(--accent-light); color: #92400E; }
+
+  /* ── 코드 ── */
+  pre {
+    background: #1E1E2E;
+    color: #CDD6F4;
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-size: .82rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  code {
+    background: var(--gray-100);
+    color: #6D28D9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: .85em;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+  /* 구문 하이라이트 */
+  .kw { color: #CBA6F7; }  /* 키워드 */
+  .st { color: #A6E3A1; }  /* 문자열 */
+  .cm { color: #6C7086; }  /* 주석 */
+  .fn { color: #89B4FA; }  /* 함수 */
+  .nm { color: #FAB387; }  /* 숫자/상수 */
+
+  /* ── 콜아웃 박스 ── */
+  .callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border-radius: 8px; margin: 16px 0; font-size: .88rem;
+  }
+  .callout .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .callout-warn  { background: #FFFBEB; border-left: 3px solid var(--accent); }
+  .callout-info  { background: #EFF6FF; border-left: 3px solid #3B82F6; }
+  .callout-tip   { background: var(--green-light); border-left: 3px solid var(--green); }
+
+  /* ── 체크리스트 ── */
+  ul.checklist { list-style: none; margin: 12px 0; }
+  ul.checklist li {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 5px 0; border-bottom: 1px solid var(--gray-100);
+    font-size: .9rem;
+  }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before {
+    content: '☐';
+    color: var(--gray-400); font-size: .9rem; flex-shrink: 0;
+  }
+
+  /* ── 카드 그리드 ── */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .card {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 16px 18px;
+    background: var(--gray-50);
+  }
+  .card .card-title { font-weight: 700; font-size: .9rem; color: var(--gray-900); margin-bottom: 6px; }
+  .card .card-body  { font-size: .82rem; color: var(--gray-600); line-height: 1.6; }
+
+  /* ── 플로우 다이어그램 ── */
+  .flow {
+    display: flex; align-items: center; gap: 0;
+    flex-wrap: wrap; margin: 16px 0;
+  }
+  .flow-step {
+    background: var(--primary-light); color: var(--primary);
+    border: 1px solid #C7D2FE; border-radius: 8px;
+    padding: 10px 16px; font-size: .82rem; font-weight: 600;
+    text-align: center; min-width: 90px;
+  }
+  .flow-arrow {
+    color: var(--gray-400); font-size: 1.2rem; padding: 0 6px;
+  }
+
+  /* ── 버전 비교 하이라이트 ── */
+  .version-card {
+    border-radius: 10px; padding: 20px 22px; margin-bottom: 14px;
+    border: 2px solid transparent;
+  }
+  .version-fast   { background: #FFFBEB; border-color: var(--accent); }
+  .version-precise { background: #EFF6FF; border-color: #3B82F6; }
+  .version-card h3 { margin-top: 0; margin-bottom: 10px; }
+  .version-fast h3   { color: #92400E; }
+  .version-precise h3 { color: #1E40AF; }
+
+  /* ── 링크 ── */
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── 풋터 ── */
+  footer {
+    text-align: center; padding: 32px;
+    color: var(--gray-400); font-size: .8rem;
+  }
+
+  /* ── 반응형 ── */
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { display: none; }
+    header { padding: 36px 20px; }
+    section { padding: 24px 20px; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ 헤더 ══ -->
+<header>
+  <span class="emoji">⚡</span>
+  <h1>단가표 빠른 추출기</h1>
+  <p>통신사 단가표 이미지를 AI로 자동 추출 → Excel / CSV / Markdown 다운로드</p>
+  <div class="links">
+    <a href="https://dangatyo-fast.streamlit.app" target="_blank">🔗 라이브 앱</a>
+    <a href="https://github.com/samhan-dotcom/dangatyo-fast" target="_blank">📁 GitHub 레포</a>
+    <a href="https://console.anthropic.com/settings/billing" target="_blank">💳 크레딧 확인</a>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ══ 사이드바 ══ -->
+<nav class="toc">
+  <div class="toc-title">목차</div>
+  <ol>
+    <li><a href="#why">왜 만들었나</a></li>
+    <li><a href="#versions">버전 구성</a></li>
+    <li><a href="#features">주요 기능</a></li>
+    <li><a href="#files">파일 구조</a></li>
+    <li><a href="#design">기술·설계 결정</a></li>
+    <li><a href="#local">로컬 실행</a></li>
+    <li><a href="#cloud">클라우드 배포</a></li>
+    <li><a href="#cost">비용 구조</a></li>
+    <li><a href="#template">템플릿 추가</a></li>
+    <li><a href="#future">향후 개선 방향</a></li>
+  </ol>
+</nav>
+
+<!-- ══ 본문 ══ -->
+<main>
+
+<!-- 1. 왜 만들었나 -->
+<section id="why">
+  <h2><span class="ico">💡</span>왜 만들었나</h2>
+  <p>통신사 단가표(LGU+, KT, SKT 등)는 이미지·PDF 형태로 배포되어, 수작업으로 Excel에 옮기는 반복 작업이 발생했습니다.</p>
+  <p>Claude의 Vision 기능으로 이 과정을 자동화하고, 팀원 누구나 <strong>링크 하나</strong>로 사용할 수 있게 만든 도구입니다.</p>
+
+  <div class="flow">
+    <div class="flow-step">📷<br>이미지 업로드</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🤖<br>Claude 분석</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">✏️<br>결과 확인·수정</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">📥<br>Excel 다운로드</div>
+  </div>
+</section>
+
+<!-- 2. 버전 구성 -->
+<section id="versions">
+  <h2><span class="ico">🔀</span>버전 구성</h2>
+
+  <div class="version-card version-fast">
+    <h3>⚡ 빠른 버전 <code>app_fast.py</code></h3>
+    <p>Claude 1회 호출 · 약 10~20초 · 50~120원/장<br>
+    Streamlit Cloud에 배포되어 <strong>링크만으로 팀 전체 사용 가능</strong></p>
+  </div>
+
+  <div class="version-card version-precise">
+    <h3>🔬 정밀 버전 <code>app.py</code></h3>
+    <p>Claude 2~4회 병렬 호출 + PaddleOCR 교차검증 · 약 30~60초 · 100~250원/장<br>
+    PaddleOCR 때문에 <strong>로컬 랩탑에서만 실행</strong> (클라우드 배포 불가)</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>구분</th><th>빠른 버전</th><th>정밀 버전</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Claude 호출</td><td>1회</td><td>2~4회 병렬</td></tr>
+        <tr><td>소요 시간</td><td>10~20초</td><td>30~60초</td></tr>
+        <tr><td>비용</td><td>50~120원/장</td><td>100~250원/장</td></tr>
+        <tr><td>OCR 교차검증</td><td><span class="badge badge-red">❌</span></td><td><span class="badge badge-green">✅ PaddleOCR</span></td></tr>
+        <tr><td>재검증·감사</td><td><span class="badge badge-red">❌</span></td><td><span class="badge badge-green">✅</span></td></tr>
+        <tr><td>접속 방법</td><td>링크 (Streamlit Cloud)</td><td>Cloudflare Tunnel URL</td></tr>
+        <tr><td>절전 모드</td><td><span class="badge badge-amber">있음 (무료 플랜)</span></td><td><span class="badge badge-gray">해당 없음</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="icon">ℹ️</span>
+    <span><strong>왜 정밀 버전을 클라우드에 못 올리나?</strong><br>
+    PaddleOCR이 너무 무거워 Streamlit Cloud 무료 플랜에서 설치 실패합니다. Vercel·Heroku는 WebSocket 기반 Streamlit 자체와 호환되지 않습니다.</span>
+  </div>
+</section>
+
+<!-- 3. 주요 기능 -->
+<section id="features">
+  <h2><span class="ico">✨</span>주요 기능</h2>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">🟡 불확실 셀 강조</div>
+      <div class="card-body">AI가 판독에 확신이 낮은 셀을 노란색으로 표시. 원본 이미지와 대조 유도.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">✏️ 인라인 편집</div>
+      <div class="card-body">추출 결과를 셀 더블클릭으로 바로 수정. 재추출 없이 즉시 반영.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📥 다중 포맷 다운로드</div>
+      <div class="card-body">Excel (.xlsx) / CSV / Markdown 동시 제공. 편집 내용 자동 반영.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 통신사 양식 템플릿</div>
+      <div class="card-body">LGU+, KT, SKT 전용 컬럼 정의 + 자동감지 모드. templates.py에서 추가 가능.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔢 비용 추적</div>
+      <div class="card-body">토큰 사용량과 원화 비용을 세션 단위로 표시. 캐시 할인도 반영.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🕐 시간 기록</div>
+      <div class="card-body">추출 시작·완료 시간 및 소요시간 표시. 성능 모니터링용.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 파일 구조 -->
+<section id="files">
+  <h2><span class="ico">📁</span>파일 구조</h2>
+  <pre><code><span class="cm"># ── 이 레포 (Streamlit Cloud 배포용) ──</span>
+dangatyo-fast/
+├── <span class="nm">app_fast.py</span>       <span class="cm"># 메인 앱 (빠른 버전)</span>
+├── <span class="nm">templates.py</span>      <span class="cm"># 통신사별 양식 정의</span>
+├── <span class="nm">requirements.txt</span>  <span class="cm"># 패키지 목록 (OCR 제외)</span>
+├── <span class="nm">.gitignore</span>        <span class="cm"># .env, secrets 제외</span>
+└── <span class="nm">README.md</span>         <span class="cm"># 텍스트 인수인계 문서</span>
+
+<span class="cm"># ── 로컬 랩탑 전용 (별도 폴더) ──</span>
+단가표앱/
+├── <span class="nm">app.py</span>            <span class="cm"># 정밀 버전 (OCR 포함)</span>
+├── <span class="nm">app_fast.py</span>       <span class="cm"># 빠른 버전 (로컬용)</span>
+├── <span class="nm">templates.py</span>      <span class="cm"># 공유</span>
+├── <span class="nm">run_all.bat</span>       <span class="cm"># 두 버전 + Cloudflare 동시 시작</span>
+└── <span class="nm">SETUP.md</span>          <span class="cm"># 로컬 설치 가이드</span></code></pre>
+</section>
+
+<!-- 5. 기술·설계 결정 -->
+<section id="design">
+  <h2><span class="ico">🏗️</span>기술·설계 결정</h2>
+
+  <h3>AI 모델: claude-sonnet-4-6</h3>
+  <p>Opus는 비용이 너무 높고, Haiku는 표 추출 정확도가 낮았습니다. Sonnet이 속도·비용·정확도의 균형점입니다.</p>
+  <p><strong>Extended Thinking (adaptive, effort: low)</strong> 적용 — 숫자 판독 정확도 향상, 비용 최소화.</p>
+  <p><strong>JSON Schema 강제 출력</strong> — 자유 텍스트 대신 구조화된 JSON으로 받아 파싱 오류를 원천 차단.</p>
+
+  <h3>이미지 전처리</h3>
+  <pre><code><span class="kw">def</span> <span class="fn">preprocess_image</span>(image_bytes):
+    <span class="cm"># 1) 긴 변 기준 1500~2576px 리사이즈</span>
+    <span class="cm"># 2) UnsharpMask — 선명도 향상</span>
+    <span class="cm"># 3) Contrast +15% — 대비 강화</span>
+    <span class="cm"># → 단순 원본 업로드 대비 OCR 정확도 눈에 띄게 개선</span></code></pre>
+
+  <h3>다운로드 캐싱 구조</h3>
+  <p>Streamlit은 UI 인터랙션마다 전체를 재실행하므로, 버튼 클릭마다 파일을 재생성하면 느립니다.</p>
+  <p><code>build_key</code>(문서 제목 + 편집 내용 해시)를 비교해서 <strong>내용이 바뀔 때만</strong> Excel/CSV/MD를 재빌드합니다.</p>
+  <pre><code>build_key = (doc_title, tuple(general_notes), tuple(edited_cells...))
+<span class="kw">if</span> session_state[<span class="st">"dl_built_key"</span>] != build_key:
+    <span class="cm"># 재빌드</span></code></pre>
+
+  <h3>비용 추적</h3>
+  <pre><code><span class="kw">def</span> <span class="fn">_add_tokens</span>(usage):
+    <span class="cm"># 세션 내 모든 API 호출 토큰 누산</span>
+    t[<span class="st">"input"</span>]        += usage.input_tokens
+    t[<span class="st">"output"</span>]       += usage.output_tokens
+    t[<span class="st">"cache_read"</span>]   += usage.cache_read_input_tokens   <span class="cm"># ×0.10</span>
+    t[<span class="st">"cache_create"</span>] += usage.cache_creation_input_tokens <span class="cm"># ×1.25</span>
+<span class="cm"># 1 USD = 1,400 KRW 환산해 원화 표시</span></code></pre>
+
+  <h3>API 키 관리 (로컬+클라우드 이중 지원)</h3>
+  <pre><code><span class="kw">def</span> <span class="fn">get_client</span>():
+    api_key = os.environ.get(<span class="st">"ANTHROPIC_API_KEY"</span>)   <span class="cm"># 1순위: .env</span>
+    <span class="kw">if not</span> api_key:
+        api_key = st.secrets.get(<span class="st">"ANTHROPIC_API_KEY"</span>)  <span class="cm"># 2순위: Streamlit Secrets</span></code></pre>
+
+  <div class="callout callout-warn">
+    <span class="icon">⚠️</span>
+    <span><strong>Cloudflare Tunnel 주의사항</strong><br>
+    <code>localhost</code> 대신 <code>127.0.0.1</code>을 사용해야 합니다.<br>
+    <code>localhost</code>는 IPv6 <code>[::1]</code>로 해석되고, Streamlit은 IPv4만 리스닝해서 연결 실패합니다.</span>
+  </div>
+</section>
+
+<!-- 6. 로컬 실행 -->
+<section id="local">
+  <h2><span class="ico">💻</span>로컬 실행</h2>
+
+  <h3>사전 조건</h3>
+  <ul style="margin: 10px 0 16px 18px; line-height: 2;">
+    <li><strong>Python 3.12</strong> — PaddleOCR 호환 (3.13+ 불가)</li>
+    <li><strong>cloudflared</strong> — <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" target="_blank">다운로드 링크</a></li>
+  </ul>
+
+  <pre><code><span class="cm"># 1. 가상환경 생성 (반드시 Python 3.12)</span>
+py -3.12 -m venv .venv
+.venv\Scripts\activate
+
+<span class="cm"># 2. 패키지 설치</span>
+pip install -r requirements.txt
+
+<span class="cm"># 3. OCR 설치 (정밀 버전 사용 시만)</span>
+pip install paddlepaddle paddleocr
+
+<span class="cm"># 4. .env 파일 생성</span>
+<span class="st">ANTHROPIC_API_KEY=sk-ant-api03-...</span></code></pre>
+
+  <h3>실행</h3>
+  <pre><code><span class="cm"># 빠른 버전만 (포트 8502)</span>
+streamlit run app_fast.py --server.port <span class="nm">8502</span>
+
+<span class="cm"># 두 버전 + Cloudflare 동시 시작 (Windows)</span>
+run_all.bat</code></pre>
+
+  <p><code>run_all.bat</code>이 자동으로 처리하는 것:</p>
+  <ul style="margin: 10px 0 0 18px; line-height: 2;">
+    <li>기존 프로세스 종료</li>
+    <li>정밀 버전 (포트 8501) 시작</li>
+    <li>빠른 버전 (포트 8502) 시작</li>
+    <li>Cloudflare Tunnel 2개 시작 → trycloudflare.com URL 출력</li>
+  </ul>
+</section>
+
+<!-- 7. 클라우드 배포 -->
+<section id="cloud">
+  <h2><span class="ico">☁️</span>Streamlit Cloud 배포</h2>
+
+  <h3>코드 수정 → 배포 워크플로우</h3>
+  <pre><code><span class="cm"># 수정 후 push → Streamlit Cloud 자동 재빌드 (약 1~2분)</span>
+git add .
+git commit -m <span class="st">"변경 내용 설명"</span>
+git push</code></pre>
+
+  <h3>API 키 설정 위치</h3>
+  <p>Streamlit Cloud → 앱 설정 → <strong>Secrets</strong> 탭에 아래 형식으로 입력:</p>
+  <pre><code>ANTHROPIC_API_KEY = <span class="st">"sk-ant-api03-..."</span></code></pre>
+
+  <div class="callout callout-warn">
+    <span class="icon">😴</span>
+    <span><strong>절전 모드 안내 (팀원에게 공유)</strong><br>
+    무료 플랜은 미접속 시 앱이 잠듭니다. "Zzzz" 화면이 뜨면 <strong>파란 버튼 클릭 → 약 1분 대기</strong>하면 재시작됩니다.</span>
+  </div>
+</section>
+
+<!-- 8. 비용 구조 -->
+<section id="cost">
+  <h2><span class="ico">💰</span>비용 구조</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>단가</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>claude-sonnet-4-6 입력</td><td>$3.00 / 100만 토큰</td></tr>
+        <tr><td>claude-sonnet-4-6 출력</td><td>$15.00 / 100만 토큰</td></tr>
+        <tr><td>캐시 쓰기</td><td>입력의 1.25배</td></tr>
+        <tr><td>캐시 읽기</td><td>입력의 0.10배 (90% 할인)</td></tr>
+        <tr><td><strong>빠른 버전 (장당)</strong></td><td><strong>약 50~120원</strong></td></tr>
+        <tr><td><strong>정밀 버전 (장당)</strong></td><td><strong>약 100~250원</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>모델 업그레이드 시 <code>app_fast.py</code> 상단 두 곳만 수정합니다:</p>
+  <pre><code>MODEL = <span class="st">"claude-sonnet-4-6"</span>   <span class="cm"># ← 모델명 변경</span>
+
+PRICES = {
+    <span class="st">"claude-sonnet-4-6"</span>: (<span class="nm">3.0</span>, <span class="nm">15.0</span>),  <span class="cm"># ← (입력, 출력) $/100만토큰</span>
+}</code></pre>
+</section>
+
+<!-- 9. 템플릿 추가 -->
+<section id="template">
+  <h2><span class="ico">📋</span>템플릿 추가 방법</h2>
+  <p><code>templates.py</code>만 수정하면 새 통신사나 양식을 추가할 수 있습니다.</p>
+  <pre><code>TEMPLATES = {
+    <span class="st">"auto"</span>: {
+        <span class="st">"display_name"</span>: <span class="st">"⊕ 자동 감지 (양식 모를 때)"</span>,
+        <span class="st">"prompt"</span>: <span class="nm">None</span>,
+    },
+    <span class="st">"lgup"</span>: {
+        <span class="st">"display_name"</span>: <span class="st">"📱 LGU+"</span>,
+        <span class="st">"prompt"</span>: <span class="st">"...(LGU+ 전용 추출 지시사항)..."</span>,
+    },
+
+    <span class="cm"># 새 양식 추가 예시:</span>
+    <span class="st">"mvno"</span>: {
+        <span class="st">"display_name"</span>: <span class="st">"📡 알뜰폰 (MVNO)"</span>,
+        <span class="st">"prompt"</span>: <span class="st">"""
+        이 이미지는 알뜰폰 단가표입니다.
+        컬럼: 통신사, 요금제명, 월정액, 데이터, 특이사항
+        ...(구체적인 추출 지시)...
+        """</span>,
+    },
+}</code></pre>
+  <div class="callout callout-tip">
+    <span class="icon">✅</span>
+    <span>수정 후 <code>git push</code>하면 Streamlit Cloud에 <strong>자동 반영</strong>됩니다.</span>
+  </div>
+</section>
+
+<!-- 10. 향후 개선 방향 -->
+<section id="future">
+  <h2><span class="ico">🚀</span>향후 개선 방향</h2>
+
+  <h3>단기</h3>
+  <ul class="checklist">
+    <li>여러 이미지 일괄 업로드 (현재 1장씩)</li>
+    <li>추출 결과 저장·불러오기 (히스토리)</li>
+    <li>다크 모드 지원</li>
+  </ul>
+
+  <h3>중기</h3>
+  <ul class="checklist">
+    <li>PDF 직접 업로드 (현재 스크린샷만 가능)</li>
+    <li>표 비교 기능 (이번달 vs 지난달 단가 차이 강조)</li>
+    <li>팀 공유용 결과 링크 생성</li>
+  </ul>
+
+  <h3>장기</h3>
+  <ul class="checklist">
+    <li>이메일·카카오톡으로 받은 단가표 자동 처리</li>
+    <li>데이터베이스 연동 (단가표 이력 관리)</li>
+    <li>단가 변동 알림</li>
+  </ul>
+
+  <h3>관련 링크</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title"><a href="https://console.anthropic.com" target="_blank">Anthropic Console</a></div>
+      <div class="card-body">API 키 관리, 크레딧 잔액 확인</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><a href="https://share.streamlit.io" target="_blank">Streamlit Cloud</a></div>
+      <div class="card-body">배포 상태 확인, 앱 재시작, Secrets 관리</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><a href="https://docs.anthropic.com" target="_blank">Claude API 문서</a></div>
+      <div class="card-body">모델 정보, 가격표, API 레퍼런스</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><a href="https://docs.streamlit.io" target="_blank">Streamlit 문서</a></div>
+      <div class="card-body">UI 컴포넌트, session_state, 배포 가이드</div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  단가표 빠른 추출기 인수인계 문서 &nbsp;·&nbsp;
+  <a href="https://dangatyo-fast.streamlit.app" target="_blank">dangatyo-fast.streamlit.app</a>
+</footer>
+
+</body>
+</html>
