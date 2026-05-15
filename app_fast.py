@@ -429,9 +429,64 @@ def build_md(doc_title: str, tables_with_dfs: list,
 
 
 # ---------------------------------------------------------------------------
-# Streamlit UI
+# Streamlit UI  (set_page_config은 최초 1회, 가장 먼저 호출)
 # ---------------------------------------------------------------------------
 st.set_page_config(page_title=APP_TITLE, page_icon="⚡", layout="wide")
+
+
+# ---------------------------------------------------------------------------
+# 접근 인증 (회사 내부 전용)
+# ---------------------------------------------------------------------------
+def _check_password() -> bool:
+    """
+    Streamlit Secrets 또는 환경변수에 APP_PASSWORD가 설정되어 있으면
+    비밀번호 입력 화면을 보여주고 인증 여부를 반환합니다.
+    APP_PASSWORD가 설정되지 않은 경우 인증 없이 통과 (로컬 개발·테스트용).
+    """
+    correct_pw = None
+    try:
+        correct_pw = st.secrets.get("APP_PASSWORD") or os.environ.get("APP_PASSWORD")
+    except Exception:
+        correct_pw = os.environ.get("APP_PASSWORD")
+
+    # 비밀번호가 설정 안 된 경우 → 인증 건너뜀
+    if not correct_pw:
+        return True
+
+    # 이미 인증된 세션
+    if st.session_state.get("_pw_ok"):
+        return True
+
+    # 비밀번호 입력 화면
+    st.markdown(
+        """
+        <div style='text-align:center;padding:60px 0 20px'>
+          <span style='font-size:3rem'>⚡</span>
+          <h2 style='margin:10px 0 6px;font-size:1.5rem'>단가표 빠른 추출기</h2>
+          <p style='color:#6B7280;font-size:.95rem'>사내 전용 도구입니다. 비밀번호를 입력해 주세요.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    col_l, col_c, col_r = st.columns([1, 2, 1])
+    with col_c:
+        pw = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력",
+                           label_visibility="collapsed")
+        if st.button("✅ 입장", use_container_width=True, type="primary"):
+            if pw == correct_pw:
+                st.session_state["_pw_ok"] = True
+                st.rerun()
+            else:
+                st.error("비밀번호가 올바르지 않습니다.")
+        st.caption("비밀번호 문의: 담당자에게 연락해 주세요.")
+
+    return False
+
+
+if not _check_password():
+    st.stop()
+
+
 st.title(APP_TITLE)
 st.caption("이미지 업로드 → 1회 AI 추출 → 즉시 다운로드  |  빠르고 저렴 (검증·감사 없음)")
 
